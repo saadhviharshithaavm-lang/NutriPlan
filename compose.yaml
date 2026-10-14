@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: nutriplan-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nutriplan}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nutriplan_dev_only}
+      POSTGRES_DB: ${POSTGRES_DB:-nutriplan}
+    ports:
+      # Host 5433 -> container 5432, so a locally-installed Postgres on the
+      # default port never collides with this dev database.
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - nutriplan_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nutriplan}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  nutriplan_db_data:
